@@ -1,2 +1,2 @@
 Hello,
-This is a proyect about KPI Metrics in a callcenter for a customer service by differents departments; emails, chats and phone. This include the precentage of Good/bad rates given by how well done is the service provided
+This is a proyect about KPI Metrics in a callcenter for a customer service by differents departments; emails, chats and phone. This include the precentage of good/bad rates given by how well done is the service provided. Data info was/is created in excel (since I cant find any data related with callcenter); then all the info is imported to SQL (excel files are keep as backups), all the calcucation and aggroupations are done in SQL, after that just connect to PowerBi. Background are made in Figma 
