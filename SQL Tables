@@ -1,0 +1,57 @@
+• Create table for:
+	vac, agents, emails, qa, absences,terminated, modes
+
+• Vac table:
+	ddate date NOT NULL,
+	agent_id character varying(100) NOT NULL,
+	CONSTRAINT agent_fk FOREIGN KEY (agent_id)
+        REFERENCES match.agents (cod_empl)
+
+• Agents table:
+	ids integer serial NOT NULL,
+	first_name character varying(100) NOT NULL,
+	last_name character varying(100) NOT NULL,
+	wages character varying(100) NOT NULL,
+	cod_empl character varying(100) NOT NULL GENERATED ALWAYS AS (ids|| "left"(first_name, 1) || "left"(last_name, 1)) STORED,
+  lob character varying(10),
+  wave character varying(10),
+  hire_date date,
+	CONSTRAINT agents_pkey PRIMARY KEY (cod_empl),
+	CONSTRAINT cod_empl UNIQUE (cod_empl)
+
+• Emails table:
+	date date NOT NULL,
+	agent_id character varying(100) NOT NULL,
+	type_id integer NOT NULL,
+	rate character varying(10) NOT NULL,
+	CONSTRAINT agent_fk FOREIGN KEY (agent_id)
+        REFERENCES match.agents (cod_empl),
+	CONSTRAINT type_fk FOREIGN KEY (type_id)
+        REFERENCES match.types (id)
+
+• Absences table:
+	ddate date NOT NULL,
+	agent_id character varying(100) NOT NULL,
+	CONSTRAINT agent_fk FOREIGN KEY (agent_id)
+        REFERENCES match.agents (cod_empl)
+
+• Terminated table:
+	ddate date NOT NULL,
+	agent_id character varying(100) NOT NULL,
+	CONSTRAINT agent_fk FOREIGN KEY (agent_id)
+        REFERENCES match.agents (cod_empl)
+
+• Modes Table:
+	ids integer serial NOT NULL,
+	type character varying(100) NOT NULL,
+	CONSTRAINT types_pkey PRIMARY KEY (ids)
+
+• Qa table:
+	ddate date NOT NULL,
+	agent_id character varying(100) NOT NULL,
+	score1 integer NOT NULL,
+	score2 integer NOT NULL,
+	CONSTRAINT agent_fk FOREIGN KEY (agent_id)
+	  REFERENCES match.agents (cod_empl)
+	CONSTRAINT score1 CHECK (score1 >= 70 AND score1 <= 100) NOT VALID,
+	CONSTRAINT score2 CHECK (score2 >= 70 AND score2 <= 100) NOT VALID
