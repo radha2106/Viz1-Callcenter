@@ -1,0 +1,50 @@
+• CREATE OR REPLACE VIEW sharelove.workday_absences_emails AS
+ WITH workdays AS (
+         SELECT to_char(date_trunc('MONTH', emails.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date AS eomonth,
+            emails.agent_id,
+            count(DISTINCT emails.ddate) AS workdays
+           FROM sharelove.emails
+          GROUP BY (to_char(date_trunc('MONTH', emails.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date), emails.agent_id
+          ORDER BY (to_char(date_trunc('MONTH', emails.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date)
+        ), absences AS (
+         SELECT to_char(date_trunc('MONTH', absences.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date AS eomonth,
+            absences.agent_id,
+            count(DISTINCT absences.ddate) AS absences
+           FROM sharelove.absences
+          GROUP BY (to_char(date_trunc('MONTH', absences.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date), absences.agent_id
+          ORDER BY (to_char(date_trunc('MONTH', absences.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date)
+        )
+ SELECT wk.eomonth,
+    wk.agent_id,
+    wk.workdays,
+    ab.absences
+   FROM workdays wk
+     JOIN absences ab ON wk.agent_id = ab.agent_id AND ab.eomonth = wk.eomonth
+  GROUP BY wk.eomonth, wk.agent_id, wk.workdays, ab.absences;
+
+• CREATE OR REPLACE VIEW sharelove.monthly_metric AS
+ WITH metric AS (
+         SELECT to_char(date_trunc('MONTH', emails.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date AS eomonth,
+            emails.agent_id,
+            count(*) AS emails_sent,
+            count(DISTINCT emails.ddate) AS worked_days
+           FROM sharelove.emails
+          GROUP BY (to_char(date_trunc('MONTH', emails.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date), emails.agent_id
+          ORDER BY (to_char(date_trunc('MONTH', emails.ddate) + '1 mon -1 days', 'YYYY-MM-DD')date)
+        )
+ SELECT eomonth,
+    agent_id,
+    emails_sent,
+        CASE
+            WHEN to_number(agent_id, '999') < 86 AND date_part('month', eomonth) < 4 THEN 48 * worked_days
+            WHEN to_number(agent_id, '999') < 86 AND date_part('month', eomonth) < 7 THEN 72 * worked_days
+            WHEN to_number(agent_id, '999') < 86 AND date_part('month', eomonth) > 6 THEN 96 * worked_days
+            WHEN to_number(agent_id, '999') > 85 AND date_part('month', eomonth) < 10 THEN 48 * worked_days
+            WHEN to_number(agent_id, '999') > 85 AND date_part('month', eomonth) > 9 THEN 72 * worked_days
+            ELSE NULL
+        END AS goal
+   FROM metric;
+
+
+
+
