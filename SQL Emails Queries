@@ -1,0 +1,74 @@
+• QA Emails
+SELECT 
+	CAST(to_char(DATE_TRUNC('MONTH', ddate) + INTERVAL '1 MONTH - 1 day','YYYY-MM-DD')as date) AS eomonth,
+	agent_id,
+	ROUND(SUM(score1+score2)/2/COUNT(*)) score
+FROM 
+	sharelove.qa
+JOIN
+	sharelove.agents
+ON 
+        sharelove.qa.agent_id=sharelove.agents.emp_code
+WHERE 
+  qa.lob='emails'
+GROUP BY 
+	eomonth, 
+	agent_id,
+  qa.lob
+ORDER BY 
+	eomonth ASC,
+	score DESC
+----------------------------------------
+• Emails per day, per type and per rate
+SELECT
+	ddate,
+	catg_id,
+	COUNT(CASE WHEN rate='YES' THEN 1 ELSE NULL END) AS ttyes,
+	COUNT(CASE WHEN rate='NO' THEN 1 ELSE NULL END) AS ttno
+FROM
+	sharelove.emails
+GROUP BY
+	ddate,
+	catg_id
+ORDER BY
+	ddate ASC,
+	catg_id ASC
+--------------------------------
+• EmailsPerAgents
+SELECT
+	CAST(TO_CHAR(DATE_TRUNC('Month',ddate)+INTERVAL '1 month - 1 day','YYYY-MM-DD')AS date) eomonth,
+	agent_id,
+	se.catg_id,
+	COUNT(CASE WHEN rate='YES' THEN 1 END) ttyes,
+	COUNT(CASE WHEN rate='NO' THEN 1 END) ttno
+FROM 
+	sharelove.emails se
+JOIN
+	sharelove.agents sa
+ON
+	sa.emp_code=se.agent_id
+JOIN
+	sharelove.modes sm
+ON
+	sm.idx=se.catg_id
+GROUP BY
+	eomonth,
+	sm.idx,
+	se.agent_id,
+	se.catg_id
+ORDER BY
+        eomonth ASC
+-------------------------
+• AssistanceEmails
+SELECT
+  eomonth,
+  agent_id,
+  workdays/SUM(workdays+absences) AS assistance
+FROM 
+  sharelove.workday_absences_emails
+GROUP BY
+  eomonth,
+  agent_id,
+  workdays
+---------------------------------
+
