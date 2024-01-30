@@ -1,0 +1,101 @@
+• YesTypeAgent = 
+VAR p1=CALCULATE(SUMX(EmailsPerAgents,EmailsPerAgents[ttno]+EmailsPerAgents[ttyes]),ALLSELECTED())
+VAR p2= SUM(EmailsPerAgents[ttyes])
+RETURN
+divide(p2,p1)
+-------------------------------------------------------------
+• YesType = 
+VAR p1=SUMX(EmailsTypeRate,EmailsTypeRate[ttno]+EmailsTypeRate[ttyes])
+VAR p2= SUM(EmailsTypeRate[ttyes])
+RETURN
+divide(p2,p1)
+---------------------------------
+• YAxisMinEmail = 
+MINX(ALLSELECTED(EmailsTypeRate[ddate]),[TtEmails])*0.94
+---------------------------------
+• YAxisMaxEmail = 
+MAXX(ALLSELECTED(EmailsTypeRate[ddate]),[TtEmails])*1.03
+---------------------------------------------------------
+• TtEmailYes = 
+SUM(EmailsTypeRate[ttyes])
+---------------------------------------
+•TtEmailsNo = 
+SUM(EmailsTypeRate[ttno])
+-------------------------------------
+• TtEmails = 
+SUMX(EmailsTypeRate,EmailsTypeRate[ttno]+EmailsTypeRate[ttyes])
+----------------------
+• TtAgtYesEmails = 
+SUM(EmailsPerAgents[ttyes])
+--------------------------------
+• TtAgtNoEmails = 
+SUM(EmailsPerAgents[ttno])
+-----------------------
+• TtAgtEmails = 
+SUMX(EmailsPerAgents,EmailsPerAgents[ttno]+EmailsPerAgents[ttyes])
+---------------------------------
+• Reach = 
+DIVIDE(sum(Metrics[emails_sent]),SUM(Metrics[goal]))
+------------------------------
+• QA = 
+AVERAGE(QA_email[score])/100
+-------------------------------
+• MaxMinPoint = 
+VAR p2=CALCULATE(MAXX(VALUES('Calendar'[Dates]),[TtEmails]),ALLSELECTED())
+VAR p3=CALCULATE(MINX(VALUES('Calendar'[Dates]),[TtEmails]),ALLSELECTED())
+VAR p4= [TtEmails]
+RETURN
+SWITCH(TRUE(),
+p2=p4,"#142D55",p3=p4,"#142D55")
+----------------------------------------
+• LMYesEmails = 
+SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,"--",
+SELECTEDVALUE('Calendar'[Month])<>1,
+CALCULATE([TtEmailYes],PREVIOUSMONTH('Calendar'[Dates])))
+------------------------------------------------
+• LMQA = 
+SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,"--",
+SELECTEDVALUE('Calendar'[Month])<>1,
+CALCULATE([QA],PREVIOUSMONTH('Calendar'[Dates])))
+-----------------
+• LMNoEmails = 
+SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,"--",
+SELECTEDVALUE('Calendar'[Month])<>1,
+CALCULATE([TtEmailsNo],PREVIOUSMONTH('Calendar'[Dates])))
+--------------------------------
+• LMEmails = 
+SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,"--",
+SELECTEDVALUE('Calendar'[Month])<>1,
+CALCULATE([TtEmails],PREVIOUSMONTH('Calendar'[Dates])))
+-----------------------------
+• LMAsst = 
+SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,"--",
+SELECTEDVALUE('Calendar'[Month])<>1,
+CALCULATE([Asst],PREVIOUSMONTH('Calendar'[Dates])))
+------------------
+• LabelChartEmail = 
+VAR _type =
+SELECTEDVALUE(Modes[catg])
+VAR _yestype=
+FORMAT([YesType],"Percent")
+RETURN
+_type&" | "&_yestype
+------------------------------
+• LabelChartAgent = 
+VAR _type =
+SELECTEDVALUE(Modes[catg])
+VAR _yestype=
+FORMAT([YesTypeAgent],"Percent")
+RETURN
+_type&" | "&_yestype
+--------------------------------------
+• Goal = 
+SUM(Metrics[goal])
+------------------------
+• Asst = 
+AVERAGE(AssistanceEmails[assistance])
