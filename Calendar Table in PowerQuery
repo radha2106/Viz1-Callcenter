@@ -1,3 +1,4 @@
+//Calendar #1
 let
     Source = #date(2014, 1, 1),
     Custom1 = List.Dates(Source,Number.From(#date(2015,1,1))-Number.From(Source),#duration(1,0,0,0)),
@@ -13,3 +14,24 @@ let
     #"Inserted Week of Month" = Table.AddColumn(#"Inserted End of Month", "Week of Month", each Date.WeekOfMonth([Dates]), Int64.Type)
 in
     #"Inserted Week of Month"
+
+//calendar #2
+let
+    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMjDUByIjAyMTpdhYAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [start = _t]),
+    #"Changed Type" = Table.TransformColumnTypes(Source,{{"start", type date}}),
+    #"Added Custom" = Table.AddColumn(#"Changed Type", "end", each Date.From(#date(2024,12,31))),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Added Custom",{{"end", type date}}),
+    #"Added Custom1" = Table.AddColumn(#"Changed Type1", "Dates", each {Number.From([start])..Number.From([end])}),
+    #"Expanded Dates" = Table.ExpandListColumn(#"Added Custom1", "Dates"),
+    #"Removed Columns" = Table.RemoveColumns(#"Expanded Dates",{"start", "end"}),
+    #"Changed Type2" = Table.TransformColumnTypes(#"Removed Columns",{{"Dates", type date}}),
+    #"Inserted Year" = Table.AddColumn(#"Changed Type2", "Year", each Date.Year([Dates]), Int64.Type),
+    #"Inserted Month" = Table.AddColumn(#"Inserted Year", "Month", each Date.Month([Dates]), Int64.Type),
+    #"Inserted Month Name" = Table.AddColumn(#"Inserted Month", "Month Name", each Date.MonthName([Dates]), type text),
+    #"Extracted First Characters" = Table.TransformColumns(#"Inserted Month Name", {{"Month Name", each Text.Start(_, 3), type text}}),
+    #"Inserted Quarter" = Table.AddColumn(#"Extracted First Characters", "Quarter", each Date.QuarterOfYear([Dates]), Int64.Type),
+    #"Inserted Week of Year" = Table.AddColumn(#"Inserted Quarter", "Week of Year", each Date.WeekOfYear([Dates]), Int64.Type)
+in
+    #"Inserted Week of Year"
+
+
