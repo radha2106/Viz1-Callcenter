@@ -1,101 +1,94 @@
-• YesTypeAgent = 
-VAR p1=CALCULATE(SUMX(EmailsPerAgents,EmailsPerAgents[ttno]+EmailsPerAgents[ttyes]),ALLSELECTED())
-VAR p2= SUM(EmailsPerAgents[ttyes])
+•'Calcs':[YesRatesEmails] = VAR p1=[TtEmails]
+VAR p2= SUM(Emails_FC[yes_emails])
 RETURN
 divide(p2,p1)
--------------------------------------------------------------
-• YesType = 
-VAR p1=SUMX(EmailsTypeRate,EmailsTypeRate[ttno]+EmailsTypeRate[ttyes])
-VAR p2= SUM(EmailsTypeRate[ttyes])
+•'Calcs':[TtEmails] = SUMX(Emails_FC,Emails_FC[yes_emails]+Emails_FC[no_emails])
+•'Calcs':[TtEmailYes] = SUM(Emails_FC[yes_emails])
+•'Calcs':[TtEmailsNo] = SUM(Emails_FC[no_emails])
+•'Calcs':[AsstEmails] = 
+VAR p1=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]+'Work/Absences'[absences]),Agents[lob]="emails")
+VAR p2=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]),Agents[lob]="emails")
 RETURN
-divide(p2,p1)
----------------------------------
-• YAxisMinEmail = 
-MINX(ALLSELECTED(EmailsTypeRate[ddate]),[TtEmails])*0.94
----------------------------------
-• YAxisMaxEmail = 
-MAXX(ALLSELECTED(EmailsTypeRate[ddate]),[TtEmails])*1.03
----------------------------------------------------------
-• TtEmailYes = 
-SUM(EmailsTypeRate[ttyes])
----------------------------------------
-•TtEmailsNo = 
-SUM(EmailsTypeRate[ttno])
--------------------------------------
-• TtEmails = 
-SUMX(EmailsTypeRate,EmailsTypeRate[ttno]+EmailsTypeRate[ttyes])
-----------------------
-• TtAgtYesEmails = 
-SUM(EmailsPerAgents[ttyes])
---------------------------------
-• TtAgtNoEmails = 
-SUM(EmailsPerAgents[ttno])
------------------------
-• TtAgtEmails = 
-SUMX(EmailsPerAgents,EmailsPerAgents[ttno]+EmailsPerAgents[ttyes])
----------------------------------
-• Reach = 
-DIVIDE(sum(Metrics[emails_sent]),SUM(Metrics[goal]))
-------------------------------
-• QA = 
-AVERAGE(QA_email[score])/100
--------------------------------
-• MaxMinPoint = 
-VAR p2=CALCULATE(MAXX(VALUES('Calendar'[Dates]),[TtEmails]),ALLSELECTED())
-VAR p3=CALCULATE(MINX(VALUES('Calendar'[Dates]),[TtEmails]),ALLSELECTED())
-VAR p4= [TtEmails]
-RETURN
-SWITCH(TRUE(),
-p2=p4,"#142D55",p3=p4,"#142D55")
-----------------------------------------
-• LMYesEmails = 
-SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,"--",
-SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([TtEmailYes],PREVIOUSMONTH('Calendar'[Dates])))
-------------------------------------------------
-• LMQA = 
-SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,"--",
-SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([QA],PREVIOUSMONTH('Calendar'[Dates])))
------------------
-• LMNoEmails = 
-SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,"--",
-SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([TtEmailsNo],PREVIOUSMONTH('Calendar'[Dates])))
---------------------------------
-• LMEmails = 
-SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,"--",
+DIVIDE(p2,p1)
+•'Calcs':[QA_Chat] = CALCULATE(AVERAGE(QA_Monthly_Score[monthly_score])/100,Agents[lob]="chat")
+•'Calcs':[LMEmails] = 
+VAR lastmonth= SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,BLANK(),
 SELECTEDVALUE('Calendar'[Month])<>1,
 CALCULATE([TtEmails],PREVIOUSMONTH('Calendar'[Dates])))
------------------------------
-• LMAsst = 
+VAR up= UNICHAR(128897)
+VAR down=UNICHAR(128899)
+VAR growth=DIVIDE([TtEmails]-lastmonth,lastmonth)
+RETURN
 SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,"--",
+lastmonth=BLANK(),"--",
+growth<0,ROUND(growth*100,2)&"%"&" "&down,
+growth>0,ROUND(growth*100,2)&"%"&" "&up)
+•'Calcs':[FilterAgents] = CALCULATETABLE(
+VALUES(Agents[agent_name]),
+FILTER(
+Agents,
+Agents[hire_date] <= LASTDATE('Calendar'[Dates])))
+•'Calcs':[Reach] = AVERAGE(Monthly_Email_Goal[Reach])/100
+•'Calcs':[Goal] = SUM(Monthly_Email_Goal[goal])
+•'Calcs':[RestYesEmails] = 1-[YesRatesEmails]
+•'Calcs':[TtChats] = SUMX(Chat_FC,Chat_FC[no_chats]+Chat_FC[yes_chats])
+•'Calcs':[TtCalls] = SUMX(Phone_FC,Phone_FC[no_calls]+Phone_FC[yes_calls])
+•'Calcs':[YesRatesChats] = 
+VAR p1=[TtChats]
+VAR p2= [TtChatYes]
+RETURN
+divide(p2,p1)
+•'Calcs':[YesRatesPhone] = VAR p1=[TtCalls]
+VAR p2= SUM(Phone_FC[yes_calls])
+RETURN
+divide(p2,p1)
+•'Calcs':[RestYesChat] = 1-[YesRatesChats]
+•'Calcs':[RestYesPhone] = 1-[YesRatesPhone]
+•'Calcs':[QA_Emails] = CALCULATE(AVERAGE(QA_Monthly_Score[monthly_score])/100,Agents[lob]="emails")
+•'Calcs':[QA_Phone] = CALCULATE(AVERAGE(QA_Monthly_Score[monthly_score])/100,Agents[lob]="phone")
+•'Calcs':[AsstChats] = 
+VAR p1=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]+'Work/Absences'[absences]),Agents[lob]="chat")
+VAR p2=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]),Agents[lob]="chat")
+RETURN
+DIVIDE(p2,p1)
+•'Calcs':[AsstPhone] = 
+VAR p1=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]+'Work/Absences'[absences]),Agents[lob]="phone")
+VAR p2=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]),Agents[lob]="phone")
+RETURN
+DIVIDE(p2,p1)
+•'Calcs':[TtChatNo] = SUM(Chat_FC[no_chats])
+•'Calcs':[TtChatYes] = SUM(Chat_FC[yes_chats])
+•'Calcs':[TtCallNo] = SUM(Phone_FC[no_calls])
+•'Calcs':[TtCallYes] = SUM(Phone_FC[yes_calls])
+•'Calcs':[LMCalls] = 
+VAR lastmonth= SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,BLANK(),
 SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([Asst],PREVIOUSMONTH('Calendar'[Dates])))
-------------------
-• LabelChartEmail = 
-VAR _type =
-SELECTEDVALUE(Modes[catg])
-VAR _yestype=
-FORMAT([YesType],"Percent")
+CALCULATE([TtCalls],PREVIOUSMONTH('Calendar'[Dates])))
+VAR up= UNICHAR(128897)
+VAR down=UNICHAR(128899)
+VAR growth=DIVIDE([TtCalls]-lastmonth,lastmonth)
 RETURN
-_type&" | "&_yestype
-------------------------------
-• LabelChartAgent = 
-VAR _type =
-SELECTEDVALUE(Modes[catg])
-VAR _yestype=
-FORMAT([YesTypeAgent],"Percent")
+SWITCH(TRUE(),
+lastmonth=BLANK(),"--",
+growth<0,ROUND(growth*100,2)&"%"&" "&down,
+growth>0,ROUND(growth*100,2)&"%"&" "&up)
+•'Calcs':[LMChats] = 
+VAR lastmonth= SWITCH(TRUE(),
+SELECTEDVALUE('Calendar'[Month])=1,BLANK(),
+SELECTEDVALUE('Calendar'[Month])<>1,
+CALCULATE([TtChats],PREVIOUSMONTH('Calendar'[Dates])))
+VAR up= UNICHAR(128897)
+VAR down=UNICHAR(128899)
+VAR growth=DIVIDE([TtChats]-lastmonth,lastmonth)
 RETURN
-_type&" | "&_yestype
---------------------------------------
-• Goal = 
-SUM(Metrics[goal])
-------------------------
-• Asst = 
-AVERAGE(AssistanceEmails[assistance])
+SWITCH(TRUE(),
+lastmonth=BLANK(),"--",
+growth<0,ROUND(growth*100,2)&"%"&" "&down,
+growth>0,ROUND(growth*100,2)&"%"&" "&up)
+•'Calcs':[EmailsPerDay] = SUM(EmailsPerDay[totals_emails])
+•'Calcs':[CallsperDay] = SUM(CallsPerDay[totals_calls])
+•'Calcs':[AvgHandlingChat] = FORMAT( AVERAGE( Chat_FC[avg_time_on_chat] ), "hh:mm:ss")
+•'Calcs':[AvgHandlingCalls] = FORMAT( AVERAGE( Phone_FC[avg_time_on_call] ), "hh:mm:ss")
+•'Calcs':[ChatperDay] = SUM(ChatsPerDay[totals_chats])
