@@ -1,29 +1,18 @@
--Add dates ranging from the first monday of the year until 31/Dec; remove saturdays and sundays.
--Bring the id of the agents, their wave group and their hiring date.
--Repeat the agents ids by the count of days in the list of date.
--Use a helper column to define which agents belong to the correct dates. Ex: if the person was hired on July, it should not be presented on March.
--Using the helper column remove those that are incorrect.
--Add an index column next to the dates.
--Get the months form the list of dates and put them as column on a new sheet: =TRANSPOSE(SORT(UNIQUE(TEXT(UNIQUE(data),"MMM")),1,1,1)).
--Get the list of unique agents ids on rows: =UNIQUE(data).
--Use xlookup and randbetween to see if the agents ids appears at least one time in the months.
--Using the step from above, if the agent ids appears at least one time, change it to a number between 2-3
--Using the step from above, return randomly the id of the date depending of the agent ids and the month; do this step 3 times.
--On the original sheet, add 3 helper columns and enter the id of the date that will be appearing each time.
--Add and 4th column and use OR to help to remove those rows that are equal.
--Before removing rows that are equal; copy those to a new sheet, this will be the list of agents with the days that the missed work.
--Now having only the working days of the agents, find their wave group and their hiring date.
--Using their hiring date and the wave group, add them how many emails/call/chat they did on the date.
--Repeat the amount of rows based on how many call/chats/emails they did.
--Randomly on 2 column add the rating option (Yes/No), and the category of their email/chat/phone (1-9)
--For the chat/phone department sheet, add a 3rd column and add randomly a time between 10-15min for each row.
--Convert the dates to YYYY-MM-DD.
--Save the sheets to cvs files.
-//////////////
--Add dates ranging from the first monday of the year until 31/Dec; only leave Fridays.
--Bring the id of the agents, their wave group and their hiring date.
--Repeat the agents ids by the count of days in the list of date.
--Use a helper column to define which agents belong to the correct dates. Ex: if the person was hired on July, it should not be presented on March.
--Using the helper column remove those that are incorrect.
--Add 2 columns and randomly enter numbers from 70 to 100.
--Save the sheet as cvs files.
+• Get dates from January to December (1/6-12/19 "last Friday"), filter the dates to only get Monday to Friday.
+• Get months (as number from dates).
+• Get agent's list names (including wave if needed).
+• Repeat agent's name by the amount of dates.
+• Repeat dates by the amount of agents repeated.
+• Add index number to new list created.
+• Filter agents based on hire date (this is to not include people on months that were not hired)::(if(months>=hired,1,0).
+• Create 1 new sheet and get unique agent's name in rows and get unique months in columns.
+• Gave random missing days to agents (1-3)::(randombetween).
+• Gave random date of missing dates (index) to every agent based on months::(randombetween(minifs(),maxifs()).
+• Repeat 2 last steps until missing days get to 0.
+• Create helper column for 3 days missing::(index(,match(),match()).
+• Create a helper column to filter is missing days are the same as the index date::(if(or(),1,0).
+• Create 2 sheets; one for the missed days and another for the worked days.
+• Delete the first sheets.
+• Remove unnecessary columns from both of the sheets (only leave dates and agents, also need to lookup correct index for the dates instead of the ones added manually).
+• Convert files separately to csv.
+• Follow the other file called "Viz1 steps for call-chat-emails" to add how many rows of work will be added to work and repeat step #4
