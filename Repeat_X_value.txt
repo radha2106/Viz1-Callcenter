@@ -14,4 +14,3 @@ For Each Rng In InputRng.Rows
     Set OutRng = OutRng.Offset(xNum, 0)
 Next
 End Sub
-
