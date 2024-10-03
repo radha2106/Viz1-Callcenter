@@ -1,21 +1,20 @@
-•'Calcs':[YesRatesEmails] = VAR p1=[TtEmails]
-VAR p2= SUM(Emails_FC[yes_emails])
+MEASURE 'Calcs'[YesRatesEmails] = 
+VAR p1=[TtEmails]
+VAR p2= [TtEmailYes]
 RETURN
 divide(p2,p1)
-•'Calcs':[TtEmails] = SUMX(Emails_FC,Emails_FC[yes_emails]+Emails_FC[no_emails])
-•'Calcs':[TtEmailYes] = SUM(Emails_FC[yes_emails])
-•'Calcs':[TtEmailsNo] = SUM(Emails_FC[no_emails])
-•'Calcs':[AsstEmails] = 
-VAR p1=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]+'Work/Absences'[absences]),Agents[lob]="emails")
-VAR p2=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]),Agents[lob]="emails")
-RETURN
-DIVIDE(p2,p1)
-•'Calcs':[QA_Chat] = CALCULATE(AVERAGE(QA_Monthly_Score[monthly_score])/100,Agents[lob]="chat")
-•'Calcs':[LMEmails] = 
+
+MEASURE 'Calcs'[TtEmails] = SUM(Emails[Total])
+MEASURE 'Calcs'[TtEmailYes] = CALCULATE([TtEmails],Emails[rate]=1)
+MEASURE 'Calcs'[TtEmailsNo] = CALCULATE([TtEmails],Emails[rate]=0)
+MEASURE 'Calcs'[AsstEmails] = CALCULATE(AVERAGE(Assit_Absences[Assistance_Perct]),Agents[lob]="emails")
+MEASURE 'Calcs'[QA_Chat] = CALCULATE(AVERAGE(QA_Score[Total Score])/100,QA_Score[lob]="chat")
+
+MEASURE 'Calcs'[LMEmails] = 
 VAR lastmonth= SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,BLANK(),
-SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([TtEmails],PREVIOUSMONTH('Calendar'[Dates])))
+SELECTEDVALUE('Calendar'[Months])=1,BLANK(),
+SELECTEDVALUE('Calendar'[Months])<>1,
+CALCULATE([TtEmails],PREVIOUSMONTH('Calendar'[Ddates])))
 VAR up= UNICHAR(128897)
 VAR down=UNICHAR(128899)
 VAR growth=DIVIDE([TtEmails]-lastmonth,lastmonth)
@@ -24,48 +23,46 @@ SWITCH(TRUE(),
 lastmonth=BLANK(),"--",
 growth<0,ROUND(growth*100,2)&"%"&" "&down,
 growth>0,ROUND(growth*100,2)&"%"&" "&up)
-•'Calcs':[FilterAgents] = CALCULATETABLE(
-VALUES(Agents[agent_name]),
-FILTER(
-Agents,
-Agents[hire_date] <= LASTDATE('Calendar'[Dates])))
-•'Calcs':[Reach] = AVERAGE(Monthly_Email_Goal[Reach])/100
-•'Calcs':[Goal] = SUM(Monthly_Email_Goal[goal])
-•'Calcs':[RestYesEmails] = 1-[YesRatesEmails]
-•'Calcs':[TtChats] = SUMX(Chat_FC,Chat_FC[no_chats]+Chat_FC[yes_chats])
-•'Calcs':[TtCalls] = SUMX(Phone_FC,Phone_FC[no_calls]+Phone_FC[yes_calls])
-•'Calcs':[YesRatesChats] = 
+
+MEASURE 'Calcs'[FilterAgents] = 
+CALCULATETABLE(
+  VALUES(Agents[Fullname]),
+  FILTER(Agents,Agents[hire_date] <= LASTDATE('Calendar'[idx])))
+
+MEASURE 'Calcs'[Reach] = DIVIDE([TtEmails],[Goal])
+MEASURE 'Calcs'[Goal] = SUM(Email_metrics[goals])
+MEASURE 'Calcs'[RestYesEmails] = 1-[YesRatesEmails]
+MEASURE 'Calcs'[TtChats] = COUNTROWS(Chat)
+MEASURE 'Calcs'[TtCalls] = COUNTROWS(Phone)
+
+MEASURE 'Calcs'[YesRatesChats] = 
 VAR p1=[TtChats]
 VAR p2= [TtChatYes]
 RETURN
 divide(p2,p1)
-•'Calcs':[YesRatesPhone] = VAR p1=[TtCalls]
-VAR p2= SUM(Phone_FC[yes_calls])
+
+MEASURE 'Calcs'[YesRatesPhone] = 
+VAR p1=[TtCalls]
+VAR p2= [TtCallYes]
 RETURN
 divide(p2,p1)
-•'Calcs':[RestYesChat] = 1-[YesRatesChats]
-•'Calcs':[RestYesPhone] = 1-[YesRatesPhone]
-•'Calcs':[QA_Emails] = CALCULATE(AVERAGE(QA_Monthly_Score[monthly_score])/100,Agents[lob]="emails")
-•'Calcs':[QA_Phone] = CALCULATE(AVERAGE(QA_Monthly_Score[monthly_score])/100,Agents[lob]="phone")
-•'Calcs':[AsstChats] = 
-VAR p1=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]+'Work/Absences'[absences]),Agents[lob]="chat")
-VAR p2=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]),Agents[lob]="chat")
-RETURN
-DIVIDE(p2,p1)
-•'Calcs':[AsstPhone] = 
-VAR p1=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]+'Work/Absences'[absences]),Agents[lob]="phone")
-VAR p2=CALCULATE(SUMX('Work/Absences','Work/Absences'[workdays]),Agents[lob]="phone")
-RETURN
-DIVIDE(p2,p1)
-•'Calcs':[TtChatNo] = SUM(Chat_FC[no_chats])
-•'Calcs':[TtChatYes] = SUM(Chat_FC[yes_chats])
-•'Calcs':[TtCallNo] = SUM(Phone_FC[no_calls])
-•'Calcs':[TtCallYes] = SUM(Phone_FC[yes_calls])
-•'Calcs':[LMCalls] = 
+
+MEASURE 'Calcs'[RestYesChat] = 1-[YesRatesChats]
+MEASURE 'Calcs'[RestYesPhone] = 1-[YesRatesPhone]
+MEASURE 'Calcs'[QA_Emails] = CALCULATE(AVERAGE(QA_Score[Total Score])/100,QA_Score[lob]="emails")
+MEASURE 'Calcs'[QA_Phone] = CALCULATE(AVERAGE(QA_Score[Total Score])/100,QA_Score[lob]="phone")
+MEASURE 'Calcs'[AsstChats] = CALCULATE(AVERAGE(Assit_Absences[Assistance_Perct]),Agents[lob]="chat")
+MEASURE 'Calcs'[AsstPhone] = CALCULATE(AVERAGE(Assit_Absences[Assistance_Perct]),Agents[lob]="phone")
+MEASURE 'Calcs'[TtChatNo] = CALCULATE([TtChats],Chat[rating]=0)
+MEASURE 'Calcs'[TtChatYes] = CALCULATE([TtChats],Chat[rating]=1)
+MEASURE 'Calcs'[TtCallNo] = CALCULATE(COUNTROWS(Phone),Phone[rating]=0)
+MEASURE 'Calcs'[TtCallYes] = CALCULATE(COUNTROWS(Phone),Phone[rating]=1)
+
+MEASURE 'Calcs'[LMCalls] = 
 VAR lastmonth= SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,BLANK(),
-SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([TtCalls],PREVIOUSMONTH('Calendar'[Dates])))
+SELECTEDVALUE('Calendar'[months])=1,BLANK(),
+SELECTEDVALUE('Calendar'[months])<>1,
+CALCULATE([TtCalls],PREVIOUSMONTH('Calendar'[ddates])))
 VAR up= UNICHAR(128897)
 VAR down=UNICHAR(128899)
 VAR growth=DIVIDE([TtCalls]-lastmonth,lastmonth)
@@ -74,11 +71,12 @@ SWITCH(TRUE(),
 lastmonth=BLANK(),"--",
 growth<0,ROUND(growth*100,2)&"%"&" "&down,
 growth>0,ROUND(growth*100,2)&"%"&" "&up)
-•'Calcs':[LMChats] = 
+
+MEASURE 'Calcs'[LMChats] = 
 VAR lastmonth= SWITCH(TRUE(),
-SELECTEDVALUE('Calendar'[Month])=1,BLANK(),
-SELECTEDVALUE('Calendar'[Month])<>1,
-CALCULATE([TtChats],PREVIOUSMONTH('Calendar'[Dates])))
+SELECTEDVALUE('Calendar'[Months])=1,BLANK(),
+SELECTEDVALUE('Calendar'[Months])<>1,
+CALCULATE([TtChats],PREVIOUSMONTH('Calendar'[ddates])))
 VAR up= UNICHAR(128897)
 VAR down=UNICHAR(128899)
 VAR growth=DIVIDE([TtChats]-lastmonth,lastmonth)
@@ -87,8 +85,77 @@ SWITCH(TRUE(),
 lastmonth=BLANK(),"--",
 growth<0,ROUND(growth*100,2)&"%"&" "&down,
 growth>0,ROUND(growth*100,2)&"%"&" "&up)
-•'Calcs':[EmailsPerDay] = SUM(EmailsPerDay[totals_emails])
-•'Calcs':[CallsperDay] = SUM(CallsPerDay[totals_calls])
-•'Calcs':[AvgHandlingChat] = FORMAT( AVERAGE( Chat_FC[avg_time_on_chat] ), "hh:mm:ss")
-•'Calcs':[AvgHandlingCalls] = FORMAT( AVERAGE( Phone_FC[avg_time_on_call] ), "hh:mm:ss")
-•'Calcs':[ChatperDay] = SUM(ChatsPerDay[totals_chats])
+
+MEASURE 'Calcs'[AvgHandlingChat] = 
+IF(COUNTROWS(FILTER(Chat, RELATED(Agents[lob]) = "chat")) > 0,
+FORMAT(AVERAGEX(FILTER(Chat, RELATED(Agents[lob]) = "chat"),
+Chat[aht]),"hh:mm:ss"),BLANK())
+
+MEASURE 'Calcs'[AvgHandlingCalls] = 
+IF(COUNTROWS(FILTER(Phone,RELATED(Agents[lob])="phone")) > 0,
+FORMAT(AVERAGEX(FILTER(Phone,RELATED(Agents[lob])="phone"),
+Phone[aht]),"hh:mm:ss"),BLANK())
+
+MEASURE 'Calcs'[Yes_Ratings] = 
+VAR p1=[TtCallYes]
+VAR p2=[TtChatYes]
+VAR p3=[TtEmailYes]
+RETURN
+p1+p2+p3
+
+MEASURE 'Calcs'[MaxMin_Point_Rating] = 
+VAR p1=MAXX(ALLSELECTED('Calendar'[years],'Calendar'[m_name],'Calendar'[ddates]),[Yes_Ratings])
+VAR p2=MINX(ALLSELECTED('Calendar'[years],'Calendar'[m_name],'Calendar'[ddates]),[Yes_Ratings])
+RETURN
+SWITCH(TRUE(),p1=[Yes_Ratings],"#013A63",p2=[Yes_Ratings],"#013A63")
+
+MEASURE 'Calcs'[Total_Contact] = VAR p1 = [TtCalls]
+VAR p2 = [TtChats]
+VAR p3 = [TtEmails]
+RETURN
+p1+p2+p3
+
+MEASURE 'Calcs'[Label] = 0
+MEASURE 'Calcs'[Label_Catg] = SELECTEDVALUE(Modes[catg])
+MEASURE 'Calcs'[YAxisMax] = MAXX(ALLSELECTED('Calendar'[years],'Calendar'[m_name],'Calendar'[ddates]),[Yes_Ratings])*1.04
+MEASURE 'Calcs'[YAxisMin] = MINX(ALLSELECTED('Calendar'[years],'Calendar'[m_name],'Calendar'[ddates]),[Yes_Ratings])*0.9
+
+EVALUATE
+SUMMARIZECOLUMNS(
+"YesRatesEmails", 'Calcs'[YesRatesEmails],
+"TtEmails", 'Calcs'[TtEmails],
+"TtEmailYes", 'Calcs'[TtEmailYes],
+"TtEmailsNo", 'Calcs'[TtEmailsNo],
+"AsstEmails", 'Calcs'[AsstEmails],
+"QA_Chat", 'Calcs'[QA_Chat],
+"LMEmails", 'Calcs'[LMEmails],
+"FilterAgents", 'Calcs'[FilterAgents],
+"Reach", 'Calcs'[Reach],
+"Goal", 'Calcs'[Goal],
+"RestYesEmails", 'Calcs'[RestYesEmails],
+"TtChats", 'Calcs'[TtChats],
+"TtCalls", 'Calcs'[TtCalls],
+"YesRatesChats", 'Calcs'[YesRatesChats],
+"YesRatesPhone", 'Calcs'[YesRatesPhone],
+"RestYesChat", 'Calcs'[RestYesChat],
+"RestYesPhone", 'Calcs'[RestYesPhone],
+"QA_Emails", 'Calcs'[QA_Emails],
+"QA_Phone", 'Calcs'[QA_Phone],
+"AsstChats", 'Calcs'[AsstChats],
+"AsstPhone", 'Calcs'[AsstPhone],
+"TtChatNo", 'Calcs'[TtChatNo],
+"TtChatYes", 'Calcs'[TtChatYes],
+"TtCallNo", 'Calcs'[TtCallNo],
+"TtCallYes", 'Calcs'[TtCallYes],
+"LMCalls", 'Calcs'[LMCalls],
+"LMChats", 'Calcs'[LMChats],
+"AvgHandlingChat", 'Calcs'[AvgHandlingChat],
+"AvgHandlingCalls", 'Calcs'[AvgHandlingCalls],
+"Yes_Ratings", 'Calcs'[Yes_Ratings],
+"MaxMin_Point_Rating", 'Calcs'[MaxMin_Point_Rating],
+"Total_Contact", 'Calcs'[Total_Contact],
+"Label", 'Calcs'[Label],
+"Label_Catg", 'Calcs'[Label_Catg],
+"YAxisMax", 'Calcs'[YAxisMax],
+"YAxisMin", 'Calcs'[YAxisMin]
+    )
