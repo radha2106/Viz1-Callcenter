@@ -17,8 +17,8 @@ This is a proyect about KPI Metrics in a callcenter for a customer service by di
 8. Using that random number repeat the agent name by the amount received.
 
 Better details here: 
-- [Steps for excel](https://github.com/radha2106/Viz1/blob/main/Excel%20Steps.txt)
-- [Steps for call/chat/emails](https://github.com/radha2106/Viz1/blob/main/steps%20for%20call-chat-emails.txt)
+- **Excel Steps:** [Steps for excel](https://github.com/radha2106/Viz1/blob/main/Excel%20Steps.txt)
+- **Initial Steps:** [Steps for call/chat/emails](https://github.com/radha2106/Viz1/blob/main/steps%20for%20call-chat-emails.txt)
 
 ### Steps for SQL
 1. Create a calendar table
@@ -31,8 +31,8 @@ Better details here:
 8. Create triggers and functions to help better checking inserting new rows/info
 
 Better details here: 
-- [SQL Table Snap](https://github.com/radha2106/Viz1/tree/main/tables_sql_folder)
-- [SQL Full Code](https://github.com/radha2106/Viz1/blob/main/table_trigger_view.psql)
+- **SQL Snaps:** [SQL Table Snap](https://github.com/radha2106/Viz1/tree/main/tables_sql_folder)
+- **Full SQL Tables Codes:** [SQL Full Code](https://github.com/radha2106/Viz1/blob/main/table_trigger_view.psql)
 
 ### Steps in PBI
 1. Connect PBI query to Postgres query and import the tables
@@ -40,9 +40,9 @@ Better details here:
 3. Create necessary measures in an additional folder
 4. Use a palette color of 2-3 colors (#013A63;#FDFCFC;#F1F1F1)
 
-- Measure are here: [DAX Codes](https://github.com/radha2106/Viz1/blob/main/Dax%20Code).
-- Data Modeling is showed like this: [Data Modeling](https://github.com/radha2106/Viz1/blob/main/DataModel%20PBI.png).
-- Full Dashboard is here: [Viz1](https://project.novypro.com/7z40kB).
+- **Measure are here**: [DAX Codes](https://github.com/radha2106/Viz1/blob/main/Dax%20Code).
+- **Data Modeling is showed like this**: [Data Modeling](https://github.com/radha2106/Viz1/blob/main/DataModel%20PBI.png).
+- **Full Dashboard is here**: [Viz1](https://project.novypro.com/7z40kB).
 
 ## Colors Used
 
